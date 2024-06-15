@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import "./App.css";
+import formConfig from "./config/FormConfig";
+import FormField from './components/common/FormField';
 
-function App() {
+interface FormData {
+  [key: string]: string | number;
+}
+
+const App: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>(
+    formConfig.reduce((acc, field) => {
+      acc[field.name] = field.type === 'number' ? 0 : '';
+      return acc;
+    }, {} as FormData)
+  );
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    console.log('Form Data:', formData);
+    // You can add your form submission logic here
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Survey Form</h1>
+      <form onSubmit={handleSubmit}>
+        {formConfig.map((field, index) => (
+          <FormField
+            key={index}
+            formField={field}
+            value={formData[field.name]}
+            onChange={handleChange}
+            formData={formData}
+          />
+        ))}
+        <button type="submit">Submit</button>
+      </form>
     </div>
   );
-}
+};
 
 export default App;
